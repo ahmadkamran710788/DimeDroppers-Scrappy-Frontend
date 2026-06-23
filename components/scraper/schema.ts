@@ -7,7 +7,8 @@ export const scrapeSchema = yup.object({
     .min(1, "Select at least one state")
     .required("Select at least one state"),
   sports: yup
-    .string()
-    .trim()
-    .required("Enter at least one sport (e.g. Football)"),
+    .array()
+    .of(yup.string().required())
+    .min(1, "Select at least one sport")
+    .required("Select at least one sport"),
 });

@@ -10,7 +10,6 @@ import { validateAndSetErrors } from "@/utils/validation";
 import { config } from "@/config";
 
 import Button from "@/components/common/Button";
-import Input from "@/components/common/Input";
 import Loader from "@/components/common/Loader";
 import Select from "@/components/common/Select";
 import GenericTable, { type Column } from "@/components/common/GenericTable";
@@ -73,7 +72,7 @@ const downloadUrl = (jobId: string, type: ScrapeResultType) =>
 
 function Scraper() {
   const [states, setStates] = useState<string[]>([]);
-  const [sports, setSports] = useState("");
+  const [sports, setSports] = useState<string[]>([]);
   const [levels, setLevels] = useState<"Varsity" | "all">("Varsity");
   const [discover, setDiscover] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -157,7 +156,7 @@ function Scraper() {
       method: "POST",
       data: {
         states: states.join(","),
-        sports,
+        sports: sports.join(","),
         levels,
         discover,
       },
@@ -209,22 +208,17 @@ function Scraper() {
             error={errors.states}
           />
 
-          <Input
+          <Select
             label="Sport(s)"
-            placeholder="e.g. Football or Football,Basketball"
+            options={SPORTS}
             value={sports}
-            list="sport-suggestions"
-            onChange={(e) => {
-              setSports(e.target.value);
+            onChange={(v) => {
+              setSports(v);
               if (errors.sports) setErrors((p) => ({ ...p, sports: "" }));
             }}
+            placeholder="Select sports..."
             error={errors.sports}
           />
-          <datalist id="sport-suggestions">
-            {SPORTS.map((s) => (
-              <option key={s} value={s} />
-            ))}
-          </datalist>
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-6">

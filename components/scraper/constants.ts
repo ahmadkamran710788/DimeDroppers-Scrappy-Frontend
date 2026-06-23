@@ -2,6 +2,8 @@
 // The API also exposes GET /states and GET /sports; these are the offline fallback
 // used to render the form without an extra round-trip.
 
+import type { SelectOption } from "@/components/common/Select";
+
 export interface StateOption {
   label: string;
   value: string;
@@ -61,24 +63,17 @@ export const STATES: StateOption[] = [
   { value: "wy", label: "Wyoming" },
 ];
 
-// Common MaxPreps sport labels (matches DD-Scrapper/api.py COMMON_SPORTS).
-export const SPORTS: string[] = [
-  "Football",
-  "Basketball",
-  "Baseball",
-  "Softball",
-  "Soccer",
-  "Volleyball",
-  "Wrestling",
-  "Track & Field",
-  "Cross Country",
-  "Tennis",
-  "Golf",
-  "Lacrosse",
-  "Field Hockey",
-  "Ice Hockey",
-  "Swimming",
-  "Flag Football",
+// Supported MaxPreps sports. `value` is the MaxPreps label: the backend matches
+// sports case-insensitively on the label (DD-Scrapper/max_prep_scraper.py), not a slug.
+export const SPORTS: SelectOption[] = [
+  { label: "Basketball", value: "Basketball" },
+  { label: "Football", value: "Football" },
+  { label: "Soccer", value: "Soccer" },
+  { label: "Baseball", value: "Baseball" },
+  { label: "Volleyball", value: "Volleyball" },
+  { label: "Track & Field", value: "Track & Field" },
+  { label: "Swimming", value: "Swimming" },
+  { label: "Wrestling", value: "Wrestling" },
 ];
 
 export const POLL_INTERVAL_MS = 4000;
