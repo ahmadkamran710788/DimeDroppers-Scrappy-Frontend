@@ -35,6 +35,7 @@ type ScheduleRow = Record<string, string>;
 
 const TEAM_COLUMNS: Column<TeamRow>[] = [
   { key: "name", header: "School" },
+  { key: "original_name", header: "Original Name" },
   { key: "city", header: "City" },
   { key: "state", header: "State" },
   { key: "mascot", header: "Mascot" },
