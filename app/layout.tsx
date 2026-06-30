@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "MaxPreps Scraper",
-  description: "Fetch high-school teams and schedules from MaxPreps by state and sport.",
+  description: "Fetch high-school teams and schedules from MaxPreps by state.",
 };
 
 export default function RootLayout({

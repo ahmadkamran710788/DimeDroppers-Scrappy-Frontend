@@ -14,7 +14,7 @@ import Loader from "@/components/common/Loader";
 import Select from "@/components/common/Select";
 import GenericTable, { type Column } from "@/components/common/GenericTable";
 
-import { POLL_INTERVAL_MS, SPORTS, STATES } from "./constants";
+import { POLL_INTERVAL_MS, STATES } from "./constants";
 import { scrapeSchema } from "./schema";
 
 type JobStatus = "idle" | "running" | "done" | "error";
@@ -73,7 +73,6 @@ const downloadUrl = (jobId: string, type: ScrapeResultType) =>
 
 function Scraper() {
   const [states, setStates] = useState<string[]>([]);
-  const [sports, setSports] = useState<string[]>([]);
   const [levels, setLevels] = useState<"Varsity" | "all">("Varsity");
   const [discover, setDiscover] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -144,7 +143,7 @@ function Scraper() {
 
   const handleSubmit = async () => {
     if (status === "running") return; // guard against double-submit (avoids a 429)
-    if (!(await validateAndSetErrors(scrapeSchema, { states, sports }, setErrors)))
+    if (!(await validateAndSetErrors(scrapeSchema, { states }, setErrors)))
       return;
 
     setStatus("running");
@@ -155,9 +154,9 @@ function Scraper() {
     const res = await apiCall<StartScrapeResponse>({
       endpoint: routes.api.startScrape,
       method: "POST",
+      // No `sports`: the backend scrapes all sports when it's absent.
       data: {
         states: states.join(","),
-        sports: sports.join(","),
         levels,
         discover,
       },
@@ -190,13 +189,12 @@ function Scraper() {
           MaxPreps Scraper
         </h1>
         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-          Pick one or more states and a sport to fetch teams and schedules from
-          MaxPreps.
+          Pick one or more states to fetch teams and schedules from MaxPreps.
         </p>
       </header>
 
       <section className="rounded-xl border border-neutral-200 p-5 dark:border-neutral-700">
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-5">
           <Select
             label="States"
             options={STATES}
@@ -207,18 +205,6 @@ function Scraper() {
             }}
             placeholder="Select states..."
             error={errors.states}
-          />
-
-          <Select
-            label="Sport(s)"
-            options={SPORTS}
-            value={sports}
-            onChange={(v) => {
-              setSports(v);
-              if (errors.sports) setErrors((p) => ({ ...p, sports: "" }));
-            }}
-            placeholder="Select sports..."
-            error={errors.sports}
           />
         </div>
 
