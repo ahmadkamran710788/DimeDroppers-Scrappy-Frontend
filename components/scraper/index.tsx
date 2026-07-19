@@ -14,7 +14,7 @@ import Loader from "@/components/common/Loader";
 import Select from "@/components/common/Select";
 import GenericTable, { type Column } from "@/components/common/GenericTable";
 
-import { POLL_INTERVAL_MS, STATES } from "./constants";
+import { POLL_INTERVAL_MS, SPORTS, STATES } from "./constants";
 import { scrapeSchema } from "./schema";
 
 type JobStatus = "idle" | "running" | "done" | "error";
@@ -59,6 +59,7 @@ const TEAM_COLUMNS: Column<TeamRow>[] = [
 const SCHEDULE_COLUMNS: Column<ScheduleRow>[] = [
   { key: "school_name", header: "School" },
   { key: "sport", header: "Sport" },
+  { key: "level", header: "Level" },
   { key: "date", header: "Date" },
   { key: "home_away", header: "H/A" },
   { key: "opponent", header: "Opponent" },
@@ -73,7 +74,7 @@ const downloadUrl = (jobId: string, type: ScrapeResultType) =>
 
 function Scraper() {
   const [states, setStates] = useState<string[]>([]);
-  const [levels, setLevels] = useState<"Varsity" | "all">("Varsity");
+  const [sports, setSports] = useState<string[]>([]);
   const [discover, setDiscover] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -154,10 +155,12 @@ function Scraper() {
     const res = await apiCall<StartScrapeResponse>({
       endpoint: routes.api.startScrape,
       method: "POST",
-      // No `sports`: the backend scrapes all sports when it's absent.
+      // Empty `sports` = scrape every sport (backend treats absent/empty as "all").
+      // `levels: "all"` always crawls Varsity + JV + Freshman, both genders.
       data: {
         states: states.join(","),
-        levels,
+        sports: sports.join(","),
+        levels: "all",
         discover,
       },
       // The API expects application/json; apiCall defaults to application/ld+json.
@@ -189,7 +192,8 @@ function Scraper() {
           MaxPreps Scraper
         </h1>
         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-          Pick one or more states to fetch teams and schedules from MaxPreps.
+          Pick one or more states — and optionally narrow to specific sports — to
+          fetch teams and schedules from MaxPreps.
         </p>
       </header>
 
@@ -206,17 +210,22 @@ function Scraper() {
             placeholder="Select states..."
             error={errors.states}
           />
+          <div>
+            <Select
+              label="Sports"
+              options={SPORTS}
+              value={sports}
+              onChange={setSports}
+              placeholder="All sports (leave empty)"
+            />
+            <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+              Leave empty to scrape every sport. All levels (Varsity, JV, Freshman)
+              and both genders are always included.
+            </p>
+          </div>
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-6">
-          <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
-            <input
-              type="checkbox"
-              checked={levels === "all"}
-              onChange={(e) => setLevels(e.target.checked ? "all" : "Varsity")}
-            />
-            Include JV / Freshman levels
-          </label>
           <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
             <input
               type="checkbox"

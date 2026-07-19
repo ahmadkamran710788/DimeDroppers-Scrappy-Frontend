@@ -61,4 +61,27 @@ export const STATES: StateOption[] = [
   { value: "wy", label: "Wyoming" },
 ];
 
+// Common high-school sports as MaxPreps labels them. Mirrors DD-Scrapper/api.py
+// COMMON_SPORTS. The `value` must match the MaxPreps sport name EXACTLY — the backend
+// filters schedules by an exact, case-insensitive sport match (so "Football" never
+// matches "Flag Football"). An empty selection means "scrape every sport".
+export const SPORTS: StateOption[] = [
+  { value: "Football", label: "Football" },
+  { value: "Basketball", label: "Basketball" },
+  { value: "Baseball", label: "Baseball" },
+  { value: "Softball", label: "Softball" },
+  { value: "Soccer", label: "Soccer" },
+  { value: "Volleyball", label: "Volleyball" },
+  { value: "Wrestling", label: "Wrestling" },
+  { value: "Track & Field", label: "Track & Field" },
+  { value: "Cross Country", label: "Cross Country" },
+  { value: "Tennis", label: "Tennis" },
+  { value: "Golf", label: "Golf" },
+  { value: "Lacrosse", label: "Lacrosse" },
+  { value: "Field Hockey", label: "Field Hockey" },
+  { value: "Ice Hockey", label: "Ice Hockey" },
+  { value: "Swimming", label: "Swimming" },
+  { value: "Flag Football", label: "Flag Football" },
+];
+
 export const POLL_INTERVAL_MS = 4000;
