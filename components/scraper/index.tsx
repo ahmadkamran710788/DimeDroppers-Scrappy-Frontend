@@ -19,6 +19,9 @@ import { scrapeSchema } from "./schema";
 
 type JobStatus = "idle" | "running" | "done" | "error";
 
+// Roster is download-only — it has no table, so it must not be a selectable tab.
+type ResultTab = Exclude<ScrapeResultType, "roster">;
+
 interface StartScrapeResponse {
   job_id: string;
   status: string;
@@ -26,7 +29,7 @@ interface StartScrapeResponse {
 
 interface StatusResponse {
   status: "running" | "done" | "error";
-  counts: { teams: number; schedule: number } | null;
+  counts: { teams: number; schedule: number; roster: number } | null;
   error: string | null;
 }
 
@@ -84,7 +87,7 @@ function Scraper() {
 
   const [teams, setTeams] = useState<TeamRow[]>([]);
   const [schedule, setSchedule] = useState<ScheduleRow[]>([]);
-  const [tab, setTab] = useState<ScrapeResultType>("teams");
+  const [tab, setTab] = useState<ResultTab>("teams");
 
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -290,7 +293,7 @@ function Scraper() {
               </button>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <a href={downloadUrl(jobId, "teams")}>
                 <Button variant="outline">
                   <Download className="h-4 w-4" /> teams.csv
@@ -299,6 +302,11 @@ function Scraper() {
               <a href={downloadUrl(jobId, "schedule")}>
                 <Button variant="outline">
                   <Download className="h-4 w-4" /> schedule.csv
+                </Button>
+              </a>
+              <a href={downloadUrl(jobId, "roster")}>
+                <Button variant="outline">
+                  <Download className="h-4 w-4" /> roster.csv
                 </Button>
               </a>
             </div>

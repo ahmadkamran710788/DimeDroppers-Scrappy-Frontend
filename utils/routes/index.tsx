@@ -1,4 +1,4 @@
-export type ScrapeResultType = "teams" | "schedule";
+export type ScrapeResultType = "teams" | "schedule" | "roster";
 
 export const routes = {
   ui: {
