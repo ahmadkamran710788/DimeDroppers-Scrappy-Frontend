@@ -41,6 +41,19 @@ const PHASE_LABEL: Record<string, string> = {
   done: "Finished",
 };
 
+const formatEta = (
+  startedAt: number | null,
+  progress: { done: number; total: number }
+) => {
+  if (!startedAt || progress.done <= 0 || progress.total <= progress.done) return "";
+  const elapsed = (Date.now() - startedAt) / 1000;
+  const secs = (elapsed / progress.done) * (progress.total - progress.done);
+  if (!Number.isFinite(secs) || secs < 60) return "under a minute";
+  const h = Math.floor(secs / 3600);
+  const m = Math.round((secs % 3600) / 60);
+  return h > 0 ? `${h}h ${m}m` : `${m} min`;
+};
+
 function MiddleSchools() {
   const [file, setFile] = useState<File | null>(null);
   const [limit, setLimit] = useState("");
@@ -53,8 +66,10 @@ function MiddleSchools() {
   const [schedule, setSchedule] = useState<ScheduleRow[]>([]);
   const [tab, setTab] = useState<MsResultType>("schools");
   const [uploading, setUploading] = useState(false);
+  const [eta, setEta] = useState("");
 
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const startedAtRef = useRef<number | null>(null);
 
   const stopPolling = useCallback(() => {
     if (pollRef.current) {
@@ -93,6 +108,11 @@ function MiddleSchools() {
 
       setPhase(res.data.phase);
       setProgress(res.data.progress);
+      // Rough ETA from the rate observed so far. Computed here rather than during
+      // render because Date.now() is impure and React 19 forbids it in render.
+      // A large file runs for hours, so a bare percentage isn't enough to decide
+      // whether to wait.
+      setEta(formatEta(startedAtRef.current, res.data.progress));
 
       if (res.data.status === "done") {
         stopPolling();
@@ -139,6 +159,7 @@ function MiddleSchools() {
 
     if (res.success && res.data?.job_id) {
       setJobId(res.data.job_id);
+      startedAtRef.current = Date.now();
       setStatus("running");
       toast.success("Upload accepted — job started");
     } else {
@@ -152,6 +173,8 @@ function MiddleSchools() {
     setLimit("");
     setStatus("idle");
     setJobId(null);
+    startedAtRef.current = null;
+    setEta("");
     setPhase(null);
     setProgress({ done: 0, total: 0 });
     setCounts(null);
@@ -163,6 +186,7 @@ function MiddleSchools() {
     progress.total > 0
       ? Math.min(100, Math.round((progress.done / progress.total) * 100))
       : 0;
+
   const busy = status === "running" || uploading;
 
   return (
@@ -196,8 +220,9 @@ function MiddleSchools() {
           onChange={(e) => setLimit(e.target.value)}
         />
         <p className="-mt-3 text-xs text-neutral-500">
-          A full 16,655-row file takes roughly 35 minutes. Set a small limit to try it
-          out first.
+          Any file size works — there is no row cap. Expect roughly 2 minutes per 1,000
+          rows (a 25,000-row file takes about an hour). Set a small limit to try it out
+          first; you can leave the page and come back while it runs.
         </p>
 
         <div className="flex flex-wrap gap-3">
@@ -231,7 +256,7 @@ function MiddleSchools() {
               </div>
               <p className="mt-2 text-xs text-neutral-500">
                 {progress.done.toLocaleString()} / {progress.total.toLocaleString()} (
-                {pct}%)
+                {pct}%){eta ? ` — about ${eta} remaining` : ""}
               </p>
             </>
           )}
