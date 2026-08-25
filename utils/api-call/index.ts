@@ -9,7 +9,9 @@ const apiCache = new Map<string, ApiResponse<unknown>>();
 interface ApiCallParams {
   endpoint: string;
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  data?: Record<string, unknown>;
+  // FormData is allowed for file uploads (see the multipart handling below); every
+  // other request stays a plain JSON-serialisable object.
+  data?: Record<string, unknown> | FormData;
   headers?: Record<string, string>;
   showSuccessToast?: boolean;
   successMessage?: string;
@@ -61,7 +63,12 @@ export default async function apiCall<T = unknown>({
   successMessage,
   skipCache = false,
 }: ApiCallParams): Promise<ApiResponse<T>> {
-  const cacheKey = `${method}:${endpoint}:${JSON.stringify(data || {})}`;
+  const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
+  // FormData isn't JSON-serialisable, and an upload should never be served from cache
+  // anyway, so key it by endpoint alone (it is never read back for a POST).
+  const cacheKey = `${method}:${endpoint}:${
+    isFormData ? "formdata" : JSON.stringify(data || {})
+  }`;
 
   if (method === "GET" && !skipCache && apiCache.has(cacheKey)) {
     return apiCache.get(cacheKey) as ApiResponse<T>;
@@ -74,8 +81,11 @@ export default async function apiCall<T = unknown>({
       url: `${BASE_URL}${endpoint}`,
       method,
       headers: {
-        "Content-Type": "application/ld+json",
-        Accept: "application/ld+json",
+        // Multipart bodies must NOT carry a hand-set Content-Type: axios has to write
+        // the header itself so it can append the boundary token, without which the
+        // server can't split the parts.
+        ...(isFormData ? {} : { "Content-Type": "application/ld+json" }),
+        Accept: isFormData ? "application/json" : "application/ld+json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...headers,
       },

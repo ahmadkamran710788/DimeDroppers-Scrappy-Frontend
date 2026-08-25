@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import Header from "@/components/layout/header";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MaxPreps Scraper",
-  description: "Fetch high-school teams and schedules from MaxPreps by state.",
+  title: "DimeDroppers Scraper",
+  description:
+    "Fetch high-school teams and schedules from MaxPreps, and middle-school links and schedules from GoFan.",
 };
 
 export default function RootLayout({
@@ -29,6 +31,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <Header />
         {children}
         <Toaster position="top-right" />
       </body>
