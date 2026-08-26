@@ -24,6 +24,27 @@ const link = (href: string, label: string) => (
 // Only the columns worth eyeballing. The uploaded CSV has ~120 more, all preserved
 // in the download -- showing them here would make the table unreadable.
 export const SCHOOL_COLUMNS: Column<SchoolRow>[] = [
+  {
+    key: "logo_url",
+    header: "Logo",
+    // Blank for roughly a quarter of matches: GoFan serves its own wordmark for
+    // schools that never uploaded one, and the backend blanks those rather than
+    // passing off GoFan branding as the school's logo.
+    render: (r) =>
+      r.logo_url ? (
+        // Plain <img>: these are remote S3 assets, so next/image would need a
+        // remotePatterns entry for the host and buy nothing on a 24px thumbnail.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={r.logo_url}
+          alt=""
+          loading="lazy"
+          className="h-6 w-6 shrink-0 object-contain"
+        />
+      ) : (
+        <span className="text-neutral-400">—</span>
+      ),
+  },
   { key: "SCH_NAME", header: "School (uploaded)" },
   { key: "MCITY", header: "City" },
   { key: "MSTATE", header: "State" },
