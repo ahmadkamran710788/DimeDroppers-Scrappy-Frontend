@@ -68,7 +68,36 @@ export const SCHEDULE_COLUMNS: Column<ScheduleRow>[] = [
   { key: "date", header: "Date" },
   { key: "time", header: "Time" },
   { key: "home_away", header: "H/A" },
+  {
+    key: "opponent_logo_url",
+    header: "Opp. Logo",
+    // Blank when GoFan has no real logo for the opponent, or when the opponent
+    // couldn't be resolved to a GoFan school at all -- same rules as the schools
+    // tab's Logo column.
+    render: (r) =>
+      r.opponent_logo_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={r.opponent_logo_url}
+          alt=""
+          loading="lazy"
+          className="h-6 w-6 shrink-0 object-contain"
+        />
+      ) : (
+        <span className="text-neutral-400">—</span>
+      ),
+  },
   { key: "opponent", header: "Opponent" },
+  {
+    key: "opponent_gofan_url",
+    header: "Opp. GoFan",
+    render: (r) =>
+      r.opponent_gofan_url ? (
+        link(r.opponent_gofan_url, "Open")
+      ) : (
+        <span className="text-neutral-400">—</span>
+      ),
+  },
   { key: "venue_name", header: "Venue" },
   { key: "venue_city", header: "Venue City" },
   {
