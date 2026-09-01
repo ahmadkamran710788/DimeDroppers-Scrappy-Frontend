@@ -38,6 +38,7 @@ const downloadUrl = (jobId: string, type: MsResultType) =>
 const PHASE_LABEL: Record<string, string> = {
   link: "Searching GoFan for each school",
   schedule: "Fetching schedules for matched schools",
+  opponents: "Fetching opponent schools and their schedules",
   done: "Finished",
 };
 
@@ -274,7 +275,7 @@ function MiddleSchools() {
         <div className="mt-8 space-y-5">
           <div className="flex flex-wrap gap-6 text-sm">
             <span>
-              <strong>{counts?.schools.toLocaleString() ?? 0}</strong> rows processed
+              <strong>{counts?.schools.toLocaleString() ?? 0}</strong> school rows
             </span>
             <span>
               <strong>{counts?.matched.toLocaleString() ?? 0}</strong> GoFan links found
