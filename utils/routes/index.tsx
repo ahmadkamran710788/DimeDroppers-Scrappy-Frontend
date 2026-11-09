@@ -4,10 +4,15 @@ export type ScrapeResultType = "teams" | "schedule" | "roster";
 // columns appended; "schedule" is one row per upcoming GoFan event.
 export type MsResultType = "schools" | "schedule";
 
+// CSV-seeded MaxPreps job outputs: the same three files as /scrape, plus the coverage
+// report (one row per school / schedule / roster / staff page and what became of it).
+export type CsvResultType = ScrapeResultType | "coverage";
+
 export const routes = {
   ui: {
     indexRoute: "/",
     middleSchools: "/middle-schools",
+    schoolList: "/school-list",
     userDetails: (id: string | number) => `users/${id}`,
   },
 
@@ -35,5 +40,19 @@ export const routes = {
     msGofanDownload: (id: string, type: MsResultType) =>
       `ms/gofan/${id}/download?type=${type}`,
     deleteMsGofan: (id: string) => `ms/gofan/${id}`,
+
+    // CSV-seeded MaxPreps jobs (upload a list of MaxPreps school links), mounted at
+    // /scrape/csv. Own registry; jobs survive server restarts and resume -- see
+    // csv_seed_api.py. While a job runs, results/download return a partial snapshot.
+    startCsvScrape: "scrape/csv",
+    csvScrapeStatus: (id: string) => `scrape/csv/${id}`,
+    csvScrapeResults: (id: string, type: CsvResultType, offset = 0, limit = 100) =>
+      `scrape/csv/${id}/results?type=${type}&offset=${offset}&limit=${limit}`,
+    csvScrapeDownload: (id: string, type: CsvResultType) =>
+      `scrape/csv/${id}/download?type=${type}`,
+    resumeCsvScrape: (id: string) => `scrape/csv/${id}/resume`,
+    deleteCsvScrape: (id: string) => `scrape/csv/${id}`,
+    // One fresh request to MaxPreps from the scraper server: can it reach MaxPreps?
+    maxprepsHealth: "health/maxpreps",
   },
 };

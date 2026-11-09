@@ -7,6 +7,7 @@ import { cn } from "@/utils/cn";
 
 const LINKS = [
   { href: routes.ui.indexRoute, label: "MaxPreps (High Schools)" },
+  { href: routes.ui.schoolList, label: "MaxPreps (Your School List)" },
   { href: routes.ui.middleSchools, label: "GoFan (Middle Schools)" },
 ];
 

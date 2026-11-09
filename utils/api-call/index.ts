@@ -137,7 +137,9 @@ export default async function apiCall<T = unknown>({
 
       switch (status) {
         case 400:
-          errorMessage = "Invalid request. Please check your input.";
+          // The scraper API explains what is wrong with an upload (e.g. a CSV with no
+          // maxPrepsLink column); show that rather than a generic message.
+          errorMessage = backendMessage || "Invalid request. Please check your input.";
           break;
         case 401:
           errorMessage = "Session expired. Please login again.";
@@ -156,7 +158,8 @@ export default async function apiCall<T = unknown>({
             backendMessage || "Validation failed. Please check your input.";
           break;
         case 429:
-          errorMessage = "Too many requests. Please try again later.";
+          errorMessage =
+            backendMessage || "Too many requests. Please try again later.";
           break;
         case 500:
           errorMessage = "Something went wrong. Please try again later.";
